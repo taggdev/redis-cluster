@@ -3,17 +3,18 @@ version: '3.7'
 services:
   master:
     container_name: master
-    image: redis
+    image: redis:5.0.7
     ports:
       - 6379:6379
     networks:
       - rediscluster
+#    command: redis-server --requirepass redis
 
   slave-1:
     container_name: slave-1
-    image: redis
+    image: redis:5.0.7
     ports:
-      - 16379:6379
+      - 7001:6379
     volumes:
       - ./conf:/usr/local/etc/redis/
     command: redis-server /usr/local/etc/redis/redis.conf
@@ -22,22 +23,24 @@ services:
 
   slave-2:
     container_name: slave-2
-    image: redis
+    image: redis:5.0.7
     ports:
-      - 26379:6379
+      - 7002:6379
     volumes:
       - ./conf:/usr/local/etc/redis/
     command: redis-server /usr/local/etc/redis/redis.conf
     networks:
       - rediscluster
 
+# https://hub.docker.com/r/rediscommander/redis-commander
   redis-commander:
     container_name: redis-commander
     hostname: redis-commander
     image: rediscommander/redis-commander:latest
     restart: always
     environment:
-      - REDIS_HOSTS=master:master,slave-1:slave-1,slave-2:slave-2
+      - "REDIS_HOSTS=master:master,slave-1:slave-1,slave-2:slave-2"
+#      - "REDIS_PASSWORD=redis"
     ports:
       - "8081:8081"
     networks:
